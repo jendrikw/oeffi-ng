@@ -71,8 +71,10 @@ import java.util.regex.Pattern;
 
 import static de.schildbach.pte.util.Preconditions.checkArgument;
 
+import javax.annotation.Nonnull;
+
 public final class TripsGalleryAdapter extends BaseAdapter {
-    private static final Logger log = LoggerFactory.getLogger(TripsGallery.class);
+    private static final Logger log = LoggerFactory.getLogger(TripsGalleryAdapter.class);
 
     private List<TripInfo> trips = Collections.emptyList();
     private TripsOverviewActivity.RenderConfig renderConfig;
@@ -474,10 +476,11 @@ public final class TripsGalleryAdapter extends BaseAdapter {
 
         private final RectF legBox = new RectF(), legBoxRotated = new RectF();
         private final Rect bounds = new Rect();
+        private final Rect bounds2 = new Rect();
         private final Matrix matrix = new Matrix();
 
         @Override
-        protected void onDraw(final Canvas canvas) {
+        protected void onDraw(@Nonnull  final Canvas canvas) {
             super.onDraw(canvas);
             if (!isRangeDefined())
                 return;
@@ -829,6 +832,15 @@ public final class TripsGalleryAdapter extends BaseAdapter {
                     // draw really centered on line box
                     if (scale < 4f) {
                         publicLabelPaint.getTextBounds(lineLabels[0], 0, lineLabels[0].length(), bounds);
+                        if (lineLabels.length > 1) {
+                            publicLabelPaint.getTextBounds(lineLabels[1], 0, lineLabels[1].length(), bounds2);
+                            bounds.union(bounds2);
+                        }
+                        final float origTextSize = publicLabelPaint.getTextSize();
+                        if (bounds.width() > width) {
+                            // one pixel rounding error
+                            publicLabelPaint.setTextSize(origTextSize * (width-1) / bounds.width());
+                        }
                         if (lineLabels.length == 1) {
                             final int halfHeight = -bounds.centerY();
                             canvas.drawText(lineLabels[0], legBox.centerX(), legBox.centerY() + halfHeight,
@@ -839,6 +851,7 @@ public final class TripsGalleryAdapter extends BaseAdapter {
                             canvas.drawText(lineLabels[1], legBox.centerX(),
                                     legBox.centerY() + bounds.height() + lineSpacing / 2, publicLabelPaint);
                         }
+                        publicLabelPaint.setTextSize(origTextSize);
                     }
 
                     if (!departureCancelled) {

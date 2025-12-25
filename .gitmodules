@@ -1,7 +1,7 @@
 [submodule "public-transport-enabler"]
 	path = public-transport-enabler
-	url = https://github.com/santawho/public-transport-enabler.git
-	branch = nextgen
+	url = git@github.com:jendrikw/public-transport-enabler.git
+	branch = transitous-ng
 [submodule "oeffi-ng.wiki"]
 	path = androidstudio/oeffi-ng.wiki
 	url = https://github.com/santawho/oeffi-ng.wiki.git

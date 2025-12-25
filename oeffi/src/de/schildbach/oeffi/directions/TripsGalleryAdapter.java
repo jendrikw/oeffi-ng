@@ -17,6 +17,9 @@
 
 package de.schildbach.oeffi.directions;
 
+import static de.schildbach.oeffi.util.ViewUtils.drawOutlinedText;
+import static de.schildbach.pte.util.Preconditions.checkArgument;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -46,6 +49,14 @@ import android.widget.BaseAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Nonnull;
+
 import de.schildbach.oeffi.Application;
 import de.schildbach.oeffi.OeffiActivity;
 import de.schildbach.oeffi.R;
@@ -53,25 +64,15 @@ import de.schildbach.oeffi.util.Formats;
 import de.schildbach.oeffi.util.TimeSpec;
 import de.schildbach.pte.dto.Fare;
 import de.schildbach.pte.dto.Line;
+import de.schildbach.pte.dto.PTDate;
 import de.schildbach.pte.dto.Position;
 import de.schildbach.pte.dto.Stop;
 import de.schildbach.pte.dto.Style;
 import de.schildbach.pte.dto.Style.Shape;
-import de.schildbach.pte.dto.PTDate;
 import de.schildbach.pte.dto.Trip;
 import de.schildbach.pte.dto.Trip.Individual;
 import de.schildbach.pte.dto.Trip.Leg;
 import de.schildbach.pte.dto.Trip.Public;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static de.schildbach.pte.util.Preconditions.checkArgument;
-
-import javax.annotation.Nonnull;
 
 public final class TripsGalleryAdapter extends BaseAdapter {
     private static final Logger log = LoggerFactory.getLogger(TripsGalleryAdapter.class);
@@ -809,11 +810,6 @@ public final class TripsGalleryAdapter extends BaseAdapter {
 
                     // line label
                     final String[] lineLabels = splitLineLabel(line.label != null ? line.label : "?");
-                    publicLabelPaint.setColor(labelColor);
-                    publicLabelPaint.setShadowLayer(
-                            publicLabelPaint.getColor() != Color.BLACK && publicLabelPaint.getColor() != Color.RED
-                                    ? 2f : 0f,
-                            0, 0, publicLabelPaint.getColor() != Color.BLACK ? Color.BLACK : Color.WHITE);
                     publicLabelPaint.setTextSize(24f * density);
                     final FontMetrics mLine = publicLabelPaint.getFontMetrics();
                     final float hLine = mLine.descent + (-mLine.ascent);
@@ -843,13 +839,10 @@ public final class TripsGalleryAdapter extends BaseAdapter {
                         }
                         if (lineLabels.length == 1) {
                             final int halfHeight = -bounds.centerY();
-                            canvas.drawText(lineLabels[0], legBox.centerX(), legBox.centerY() + halfHeight,
-                                    publicLabelPaint);
+                            drawOutlinedText(canvas, lineLabels[0], legBox.centerX(), legBox.centerY() + halfHeight, labelColor, publicLabelPaint, density);
                         } else {
-                            canvas.drawText(lineLabels[0], legBox.centerX(), legBox.centerY() - lineSpacing / 2,
-                                    publicLabelPaint);
-                            canvas.drawText(lineLabels[1], legBox.centerX(),
-                                    legBox.centerY() + bounds.height() + lineSpacing / 2, publicLabelPaint);
+                            drawOutlinedText(canvas, lineLabels[0], legBox.centerX(), legBox.centerY() - lineSpacing / 2, labelColor, publicLabelPaint, density);
+                            drawOutlinedText(canvas, lineLabels[1], legBox.centerX(), legBox.centerY() + bounds.height() + lineSpacing / 2, labelColor, publicLabelPaint, density);
                         }
                         publicLabelPaint.setTextSize(origTextSize);
                     }

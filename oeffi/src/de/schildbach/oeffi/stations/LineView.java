@@ -35,6 +35,7 @@ import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.widget.TextView;
 import de.schildbach.oeffi.R;
+import de.schildbach.oeffi.util.ViewUtils;
 import de.schildbach.pte.Standard;
 import de.schildbach.pte.dto.Line;
 import de.schildbach.pte.dto.Line.Attr;
@@ -64,8 +65,6 @@ public class LineView extends TextView {
     private final float strokeWidth;
     private final int colorInsignificant;
 
-    private static final Style DEFAULT_STYLE = new Style(Shape.ROUNDED, Color.BLACK, Color.WHITE, Color.BLACK);
-
     public LineView(final Context context) {
         this(context, null, 0);
     }
@@ -88,7 +87,7 @@ public class LineView extends TextView {
     }
 
     public void setLine(final Line line) {
-        setLines(Arrays.asList(line));
+        setLines(new ArrayList<>(Collections.singletonList(line)));
     }
 
     public void setLines(final Collection<Line> lines) {
@@ -123,7 +122,7 @@ public class LineView extends TextView {
 
                 // sort by count
                 final List<Entry<Product, Integer>> sortedEntries = new ArrayList<>(productCounts.entrySet());
-                Collections.sort(sortedEntries, (entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
+                sortedEntries.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
                 // condense
                 for (final Map.Entry<Product, Integer> entry : sortedEntries) {
@@ -150,13 +149,14 @@ public class LineView extends TextView {
 
                 final Style lineStyle = line.style;
                 final Style style;
+                final Style defaultProductStyle = Standard.defaultLineStyle(null, line.product, line.label);
                 if (ghosted)
-                    style = new Style(lineStyle != null ? lineStyle.shape : DEFAULT_STYLE.shape, colorInsignificant,
-                            DEFAULT_STYLE.foregroundColor, DEFAULT_STYLE.borderColor);
+                    style = new Style(lineStyle != null ? lineStyle.shape : defaultProductStyle.shape, colorInsignificant,
+                            Color.WHITE, Color.BLACK);
                 else if (lineStyle != null)
                     style = lineStyle;
                 else
-                    style = DEFAULT_STYLE;
+                    style = defaultProductStyle;
 
                 if (line.label != null)
                     text.append(line.label);
@@ -171,7 +171,7 @@ public class LineView extends TextView {
                 final int end = text.length();
                 text.append('\ufeff'); // Workaround
 
-                text.setSpan(new Span(style, strokeWidth), begin, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                text.setSpan(new Span(style, strokeWidth, getResources().getDisplayMetrics().density), begin, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
             setText(text);
@@ -211,10 +211,12 @@ public class LineView extends TextView {
         private final int[] gradientColors = new int[2];
 
         private static final float[] GRADIENT_POSITIONS = new float[] { 0.495f, 0.505f };
+        private final float density;
 
-        private Span(final Style style, final float strokeWidth) {
+        private Span(final Style style, final float strokeWidth, float density) {
             this.style = style;
             this.strokeWidth = strokeWidth;
+            this.density = density;
         }
 
         @Override
@@ -256,10 +258,8 @@ public class LineView extends TextView {
             }
 
             // Foreground
-            paint.setStyle(Paint.Style.FILL);
-            paint.setColor(style.foregroundColor);
             paint.setShader(null);
-            canvas.drawText(text, start, end, x + Math.round(padding), y, paint);
+            ViewUtils.drawOutlinedText(canvas, text, x + Math.round(padding), y, style.foregroundColor, paint, density);
         }
 
         @Override

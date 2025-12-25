@@ -2028,7 +2028,7 @@ public class TripDetailsActivity extends OeffiActivity implements LocationListen
         final String name = location.name;
         final String place = location.place;
         final String uniqueShortName;
-        if (place != null && name != null) {
+        if (place != null && !place.isEmpty() && name != null) {
             if (place.equals(previousPlace))
                 uniqueShortName = name;
             else

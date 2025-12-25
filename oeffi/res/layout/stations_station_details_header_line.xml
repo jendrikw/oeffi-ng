@@ -19,8 +19,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/text_padding_horizontal_lax"
         android:layout_weight="1"
-        android:ellipsize="middle"
-        android:singleLine="true"
         android:textColor="@color/fg_significant"
         android:textSize="@dimen/font_size_small" />
 

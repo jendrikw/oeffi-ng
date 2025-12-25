@@ -93,6 +93,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -164,7 +165,7 @@ public class StationDetailsActivity extends OeffiActivity implements StationsAwa
     @Nullable
     private Integer selectedFavState = null;
     @Nullable
-    private LinkedHashMap<Line, List<Location>> selectedLines = null;
+    private LinkedHashMap<Line, LinkedHashSet<Location>> selectedLines = null;
 
     private MyActionBar actionBar;
     private ImageButton loadLaterButton, loadEarlierButton;
@@ -605,16 +606,16 @@ public class StationDetailsActivity extends OeffiActivity implements StationsAwa
         return selectedStation != null && stationId.equals(selectedStation.id);
     }
 
-    private LinkedHashMap<Line, List<Location>> groupDestinationsByLine(final List<LineDestination> lineDestinations) {
+    private LinkedHashMap<Line, LinkedHashSet<Location>> groupDestinationsByLine(final List<LineDestination> lineDestinations) {
         if (lineDestinations == null)
             return null;
 
-        final LinkedHashMap<Line, List<Location>> groups = new LinkedHashMap<>();
+        final LinkedHashMap<Line, LinkedHashSet<Location>> groups = new LinkedHashMap<>();
         for (final LineDestination lineDestination : lineDestinations) {
             if (lineDestination.destination != null) {
-                List<Location> list = groups.get(lineDestination.line);
+                LinkedHashSet<Location> list = groups.get(lineDestination.line);
                 if (list == null) {
-                    list = new ArrayList<>(2); // A typical line will have two destinations.
+                    list = new LinkedHashSet<>(2); // A typical line will have two destinations.
                     groups.put(lineDestination.line, list);
                 }
                 list.add(lineDestination.destination);
@@ -712,7 +713,8 @@ public class StationDetailsActivity extends OeffiActivity implements StationsAwa
                     0);
         }
 
-        public void bind(final Location station, @Nullable final LinkedHashMap<Line, List<Location>> lines,
+        public void bind(final Location station,
+                         @Nullable final LinkedHashMap<Line, LinkedHashSet<Location>> lines,
                          @Nullable final List<Line> additionalLines,
                          final StationDetailsActivity activity) {
             final List<Station> stations = activity.stations;
@@ -742,9 +744,9 @@ public class StationDetailsActivity extends OeffiActivity implements StationsAwa
             linesGroup.removeAllViews();
             if (lines != null) {
                 linesGroup.setVisibility(View.VISIBLE);
-                for (final Map.Entry<Line, List<Location>> linesEntry : lines.entrySet()) {
+                for (final Map.Entry<Line, LinkedHashSet<Location>> linesEntry : lines.entrySet()) {
                     final Line line = linesEntry.getKey();
-                    final List<Location> destinations = linesEntry.getValue();
+                    final LinkedHashSet<Location> destinations = linesEntry.getValue();
 
                     final View lineRow = inflater.inflate(R.layout.stations_station_details_header_line, null);
                     linesGroup.addView(lineRow, LINES_LAYOUT_PARAMS);

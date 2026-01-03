@@ -1018,8 +1018,6 @@ public class TripDetailsActivity extends OeffiActivity implements LocationListen
 
         final LineView lineView = row.findViewById(R.id.directions_trip_details_public_entry_line);
         lineView.setLine(leg.line);
-        if (showDestination || showAccessibility)
-            lineView.setMaxWidth(res.getDimensionPixelSize(R.dimen.line_max_width));
 
         final LinearLayout lineGroup = row
                 .findViewById(R.id.directions_trip_details_public_entry_line_group);

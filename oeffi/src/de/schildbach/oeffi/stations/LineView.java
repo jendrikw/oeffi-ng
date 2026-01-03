@@ -34,17 +34,11 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.widget.TextView;
-import de.schildbach.oeffi.R;
-import de.schildbach.oeffi.util.ViewUtils;
-import de.schildbach.pte.Standard;
-import de.schildbach.pte.dto.Line;
-import de.schildbach.pte.dto.Line.Attr;
-import de.schildbach.pte.dto.Product;
-import de.schildbach.pte.dto.Style;
-import de.schildbach.pte.dto.Style.Shape;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,6 +49,15 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import de.schildbach.oeffi.R;
+import de.schildbach.oeffi.util.ViewUtils;
+import de.schildbach.pte.Standard;
+import de.schildbach.pte.dto.Line;
+import de.schildbach.pte.dto.Line.Attr;
+import de.schildbach.pte.dto.Product;
+import de.schildbach.pte.dto.Style;
+import de.schildbach.pte.dto.Style.Shape;
 
 public class LineView extends TextView {
     private final boolean hideIfEmpty;
@@ -220,14 +223,14 @@ public class LineView extends TextView {
         }
 
         @Override
-        public void draw(final Canvas canvas, final CharSequence text, final int start, final int end, final float x,
-                final int top, final int y, final int bottom, final Paint paint) {
+        public void draw(@NonNull final Canvas canvas, final CharSequence text, final int start, final int end, final float x,
+                         final int top, final int y, final int bottom, final Paint paint) {
             final FontMetrics fontMetrics = paint.getFontMetrics();
             final float height = fontMetrics.bottom - fontMetrics.top;
             final float radius = radius(height);
             final float padding = padding(paint, height);
-            box.set(x, y + fontMetrics.top, x + Math.round(paint.measureText(text, start, end) + padding * 2),
-                    y + fontMetrics.bottom);
+            final int width = getSize(paint, text, start, end, null);
+            box.set(x, y + fontMetrics.top, x + width, y + fontMetrics.bottom);
 
             // Background
             paint.setStyle(Paint.Style.FILL);
@@ -259,16 +262,16 @@ public class LineView extends TextView {
 
             // Foreground
             paint.setShader(null);
-            ViewUtils.drawOutlinedText(canvas, text, x + Math.round(padding), y, style.foregroundColor, paint, density);
+            ViewUtils.drawOutlinedText(canvas, text, x + padding, y, style.foregroundColor, paint, density);
         }
 
         @Override
-        public int getSize(final Paint paint, final CharSequence text, final int start, final int end,
-                final Paint.FontMetricsInt fm) {
+        public int getSize(final Paint paint, final CharSequence text, final int start,
+                           final int end, @Nullable final Paint.FontMetricsInt fm) {
             final FontMetrics fontMetrics = paint.getFontMetrics();
             final float height = fontMetrics.bottom - fontMetrics.top;
             final float padding = padding(paint, height);
-            return Math.round(paint.measureText(text, start, end) + padding * 2);
+            return Math.round(paint.measureText(text, start, end) + 2 * padding);
         }
 
         private float radius(final float height) {
